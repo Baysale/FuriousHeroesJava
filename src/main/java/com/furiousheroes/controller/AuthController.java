@@ -4,8 +4,7 @@ import com.furiousheroes.config.JWTGenerator;
 import com.furiousheroes.dto.AuthResponseDTO;
 import com.furiousheroes.dto.LoginDTO;
 import com.furiousheroes.dto.RegisterDTO;
-import com.furiousheroes.model.Role;
-import com.furiousheroes.model.User;
+import com.furiousheroes.model.*;
 import com.furiousheroes.repository.RoleRepository;
 import com.furiousheroes.service.JwtBlacklistService;
 import com.furiousheroes.service.UserService;
@@ -43,7 +42,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
         if(userService.existsByUserName(registerDTO.getUsername())) {
-            return new ResponseEntity<>("Username or Email is taken!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
         }
 
         if(userService.existsByEmail(registerDTO.getEmail())) {
@@ -54,9 +53,12 @@ public class AuthController {
         user.setUserName(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setEmail(registerDTO.getEmail());
+        user.setSmithy(Smithy.defaultSmithy());
+        user.setAlchemyBrewery(AlchemyBrewery.defaultAlchemyBrewery());
+        user.setBarrack(Barrack.defaultBarrack());
+        user.setStall(Stall.defaultStall());
 
-        Role roles = roleRepository.findByName("USER").get();
-        user.setRoles(Collections.singletonList(roles));
+        roleRepository.findByName("USER").ifPresent(role -> user.setRoles(Collections.singletonList(role)));
 
         userService.saveUser(user);
 
