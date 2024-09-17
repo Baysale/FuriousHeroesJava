@@ -18,12 +18,14 @@ public class User {
     private String userName;
     private String password;
     private String email;
-    private String style;
+    private String type;
     private long experience;
     private long gold;
     private long wood;
     private long herbs;
     private long metals;
+    @Lob
+    private String avatarImage; // Base64-String oder Bild-URL
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),

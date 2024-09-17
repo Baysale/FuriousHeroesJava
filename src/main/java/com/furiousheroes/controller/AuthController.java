@@ -7,20 +7,24 @@ import com.furiousheroes.dto.RegisterDTO;
 import com.furiousheroes.model.*;
 import com.furiousheroes.repository.RoleRepository;
 import com.furiousheroes.service.JwtBlacklistService;
+import com.furiousheroes.service.OpenAiService;
 import com.furiousheroes.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,31 +42,41 @@ public class AuthController {
     private JWTGenerator jwtGenerator;
     @Autowired
     private JwtBlacklistService jwtBlacklistService;
+    @Autowired
+    private OpenAiService openAiService;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
-        if(userService.existsByUserName(registerDTO.getUsername())) {
+        if (userService.existsByUserName(registerDTO.getUsername())) {
             return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
         }
 
-        if(userService.existsByEmail(registerDTO.getEmail())) {
+        if (userService.existsByEmail(registerDTO.getEmail())) {
             return new ResponseEntity<>("Email is taken!", HttpStatus.BAD_REQUEST);
         }
 
-        User user = new User();
-        user.setUserName(registerDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
-        user.setEmail(registerDTO.getEmail());
-        user.setSmithy(Smithy.defaultSmithy());
-        user.setAlchemyBrewery(AlchemyBrewery.defaultAlchemyBrewery());
-        user.setBarrack(Barrack.defaultBarrack());
-        user.setStall(Stall.defaultStall());
+        try {
+            String imageUrl = openAiService.generateOwlImage(registerDTO);
 
-        roleRepository.findByName("USER").ifPresent(role -> user.setRoles(Collections.singletonList(role)));
+            User user = new User();
+            user.setUserName(registerDTO.getUsername());
+            user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+            user.setEmail(registerDTO.getEmail());
+            user.setSmithy(Smithy.defaultSmithy());
+            user.setAlchemyBrewery(AlchemyBrewery.defaultAlchemyBrewery());
+            user.setBarrack(Barrack.defaultBarrack());
+            user.setStall(Stall.defaultStall());
+            user.setType(registerDTO.getType());
+            user.setAvatarImage(imageUrl);
 
-        userService.saveUser(user);
+            roleRepository.findByName("USER").ifPresent(role -> user.setRoles(Collections.singletonList(role)));
 
-        return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
+            userService.saveUser(user);
+
+            return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/login")
