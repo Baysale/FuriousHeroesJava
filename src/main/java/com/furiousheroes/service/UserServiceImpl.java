@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService{
             passwordResetTokenRepository.save(passwordResetToken);
         }
 
-        String resetUrl = "http://localhost:8080/api/auth/reset-password?token=" + token;
+        String resetUrl = "http://localhost:3000/account/PasswordReset?token=" + token;
 
         emailService.sendEmail(user.getEmail(), "Password Reset Request",
                 "To reset your password, click the following link: " + resetUrl);
