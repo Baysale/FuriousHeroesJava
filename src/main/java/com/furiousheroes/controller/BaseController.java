@@ -59,24 +59,42 @@ public class BaseController {
     }
 
     private long getStructureWoodCost(User user, String structureType) {
-        return switch (structureType) {
-            case "smithy" -> user.getSmithy().getWoodCost();
-            case "barracks" -> user.getBarrack().getWoodCost();
-            case "alchemyBrewery" -> user.getAlchemyBrewery().getWoodCost();
-            case "stall" -> user.getStall().getWoodCost();
-            default -> throw new IllegalArgumentException("Invalid structure type: " + structureType);
-        };
+        switch (structureType) {
+            case "smithy":
+                return user.getSmithy().getWoodCost();
+            case "barracks":
+                return user.getBarrack().getWoodCost();
+            case "alchemyBrewery":
+                return user.getAlchemyBrewery().getWoodCost();
+            case "stall":
+                return user.getStall().getWoodCost();
+            default:
+                throw new IllegalArgumentException("Invalid structure type: " + structureType);
+        }
     }
 
     private void increaseStructureWoodCost(User user, String structureType, long woodCost) {
         long newWoodCost = (long) (woodCost * 1.1);
 
         switch (structureType) {
-            case "smithy" -> user.getSmithy().setWoodCost(newWoodCost);
-            case "barracks" -> user.getBarrack().setWoodCost(newWoodCost);
-            case "alchemyBrewery" -> user.getAlchemyBrewery().setWoodCost(newWoodCost);
-            case "stall" -> user.getStall().setWoodCost(newWoodCost);
-            default -> throw new IllegalArgumentException("Invalid structure type: " + structureType);
+            case "smithy":
+                user.getSmithy().setWoodCost(newWoodCost);
+                user.getSmithy().setLevel(user.getSmithy().getLevel()+1);
+                break;
+            case "barracks":
+                user.getBarrack().setWoodCost(newWoodCost);
+                user.getBarrack().setLevel(user.getBarrack().getLevel()+1);
+                break;
+            case "alchemyBrewery":
+                user.getAlchemyBrewery().setWoodCost(newWoodCost);
+                user.getAlchemyBrewery().setLevel(user.getAlchemyBrewery().getLevel()+1);
+                break;
+            case "stall":
+                user.getStall().setWoodCost(newWoodCost);
+                user.getStall().setLevel(user.getStall().getLevel());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid structure type: " + structureType);
         }
     }
 }
