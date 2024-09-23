@@ -27,7 +27,7 @@ public class User {
     private long herbs;
     private long metals;
     @Lob
-    private String avatarImage; // Base64-String oder Bild-URL
+    private String avatarImage;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
