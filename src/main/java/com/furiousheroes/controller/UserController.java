@@ -38,4 +38,16 @@ public class UserController {
 
         return new ResponseEntity<>("User updated successfully!", HttpStatus.OK);
     }
+
+    @GetMapping("/details")
+    public ResponseEntity<User> getUserDetails() {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.loadUserByUserName(currentUsername);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 }

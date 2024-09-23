@@ -20,9 +20,6 @@ public class Smithy {
     private long woodCost;
     private long metalCost;
 
-    @OneToOne(mappedBy = "smithy", cascade = CascadeType.ALL, orphanRemoval = true)
-    private User user;
-
     public static Smithy defaultSmithy() {
         return Smithy.builder()
                 .level(0)

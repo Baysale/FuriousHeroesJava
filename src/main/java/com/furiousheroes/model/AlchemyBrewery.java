@@ -20,9 +20,6 @@ public class AlchemyBrewery {
     private long woodCost;
     private long herbCost;
 
-    @OneToOne(mappedBy = "alchemyBrewery", cascade = CascadeType.ALL, orphanRemoval = true)
-    private User user;
-
     public static AlchemyBrewery defaultAlchemyBrewery() {
         return AlchemyBrewery.builder()
                 .level(0)

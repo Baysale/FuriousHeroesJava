@@ -20,9 +20,6 @@ public class Stall {
     private long woodCost;
     private long goldCost;
 
-    @OneToOne(mappedBy = "stall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private User user;
-
     public static Stall defaultStall() {
         return Stall.builder()
                 .level(0)

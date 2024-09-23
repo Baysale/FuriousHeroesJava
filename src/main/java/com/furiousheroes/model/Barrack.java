@@ -20,9 +20,6 @@ public class Barrack {
     private long woodCost;
     private long goldCost;
 
-    @OneToOne(mappedBy = "barrack", cascade = CascadeType.ALL, orphanRemoval = true)
-    private User user;
-
     public static Barrack defaultBarrack() {
         return Barrack.builder()
                 .level(0)
