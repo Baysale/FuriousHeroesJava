@@ -91,7 +91,7 @@ public class BaseController {
                 break;
             case "stall":
                 user.getStall().setWoodCost(newWoodCost);
-                user.getStall().setLevel(user.getStall().getLevel());
+                user.getStall().setLevel(user.getStall().getLevel()+1);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid structure type: " + structureType);
