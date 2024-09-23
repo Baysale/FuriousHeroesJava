@@ -86,8 +86,8 @@ public class AuthController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
-        Long userId = userService.loadUserByUserName(loginDTO.getUsername()).getId();
-        return new ResponseEntity<>(new AuthResponseDTO(userId, token), HttpStatus.OK);
+        User user = userService.loadUserByUserName(loginDTO.getUsername());
+        return new ResponseEntity<>(new AuthResponseDTO(user.getId(), token, user.getAvatarImage()), HttpStatus.OK);
     }
 
     @PostMapping("/logout")
