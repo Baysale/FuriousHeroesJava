@@ -63,7 +63,7 @@ public class AuthController {
             user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
             user.setEmail(registerDTO.getEmail());
             user.setGold(1000);
-            user.setWood(1000);
+            user.setWood(2000);
             user.setHerbs(1000);
             user.setMetals(1000);
             user.setSmithy(Smithy.defaultSmithy());
