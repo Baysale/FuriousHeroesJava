@@ -21,72 +21,62 @@ public class BaseController {
     private UserService userService;
 
     @PutMapping("/smithy")
-    public ResponseEntity<String> upgradeSmithy() {
+    public ResponseEntity<User> upgradeSmithy() {
         return upgradeStructure("smithy");
     }
 
     @PutMapping("/barracks")
-    public ResponseEntity<String> upgradeBarracks() {
+    public ResponseEntity<User> upgradeBarracks() {
         return upgradeStructure("barracks");
     }
 
     @PutMapping("/alchemy-brewery")
-    public ResponseEntity<String> upgradeAlchemyBrewery() {
+    public ResponseEntity<User> upgradeAlchemyBrewery() {
         return upgradeStructure("alchemyBrewery");
     }
 
     @PutMapping("/stall")
-    public ResponseEntity<String> upgradeStall() {
+    public ResponseEntity<User> upgradeStall() {
         return upgradeStructure("stall");
     }
 
-    private ResponseEntity<String> upgradeStructure(String structureType) {
+    private ResponseEntity<User> upgradeStructure(String structureType) {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.loadUserByUserName(currentUsername);
 
-        long woodCost;
-
-        switch (structureType) {
-            case "smithy":
-                woodCost = user.getSmithy().getWoodCost();
-                break;
-            case "barracks":
-                woodCost = user.getBarrack().getWoodCost();
-                break;
-            case "alchemyBrewery":
-                woodCost = user.getAlchemyBrewery().getWoodCost();
-                break;
-            case "stall":
-                woodCost = user.getStall().getWoodCost();
-                break;
-            default:
-                return new ResponseEntity<>("Invalid structure type", HttpStatus.BAD_REQUEST);
-        }
+        long woodCost = getStructureWoodCost(user, structureType);
 
         if (user.getWood() < woodCost) {
             throw new InsufficientResourcesException("Not enough wood to upgrade " + structureType);
         }
 
         user.setWood(user.getWood() - woodCost);
-        long newWoodCost = (long) (woodCost * 1.1);
-
-        switch (structureType) {
-            case "smithy":
-                user.getSmithy().setWoodCost(newWoodCost);
-                break;
-            case "barracks":
-                user.getBarrack().setWoodCost(newWoodCost);
-                break;
-            case "alchemyBrewery":
-                user.getAlchemyBrewery().setWoodCost(newWoodCost);
-                break;
-            case "stall":
-                user.getStall().setWoodCost(newWoodCost);
-                break;
-        }
+        increaseStructureWoodCost(user, structureType, woodCost);
 
         userService.saveUser(user);
 
-        return new ResponseEntity<>(structureType + " upgraded successfully!", HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    private long getStructureWoodCost(User user, String structureType) {
+        return switch (structureType) {
+            case "smithy" -> user.getSmithy().getWoodCost();
+            case "barracks" -> user.getBarrack().getWoodCost();
+            case "alchemyBrewery" -> user.getAlchemyBrewery().getWoodCost();
+            case "stall" -> user.getStall().getWoodCost();
+            default -> throw new IllegalArgumentException("Invalid structure type: " + structureType);
+        };
+    }
+
+    private void increaseStructureWoodCost(User user, String structureType, long woodCost) {
+        long newWoodCost = (long) (woodCost * 1.1);
+
+        switch (structureType) {
+            case "smithy" -> user.getSmithy().setWoodCost(newWoodCost);
+            case "barracks" -> user.getBarrack().setWoodCost(newWoodCost);
+            case "alchemyBrewery" -> user.getAlchemyBrewery().setWoodCost(newWoodCost);
+            case "stall" -> user.getStall().setWoodCost(newWoodCost);
+            default -> throw new IllegalArgumentException("Invalid structure type: " + structureType);
+        }
     }
 }
